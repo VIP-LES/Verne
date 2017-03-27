@@ -1,8 +1,6 @@
 # Verne
 Verne is the second generation data collection and logging software for the VIP team Lightning from the Edge of Space at the Georgia Institute of Technology.
 
-This project was named after French author Jules Verne whose novel *Cinq semaines en ballon* was what first introduced the project's developer to the concept of aerostats.
-
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -43,4 +41,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Under construction
+This project was named after French author Jules Verne whose novel *Cinq semaines en ballon* was what first introduced the project's developer to the concept of aerostats.
