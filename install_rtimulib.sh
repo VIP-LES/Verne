@@ -2,7 +2,7 @@
 set -ex         #Fail if any line fails, print everything
 
 apt-get update
-apt-get install python-dev
+apt-get install python-dev -y
 
 cd /tmp
 git clone https://github.com/VIP-LES/RTIMULib2.git
