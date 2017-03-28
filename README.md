@@ -19,7 +19,20 @@ Note that this step is completely optional and that it should be done only if no
 
 ### Installing and Running
 
-To run the project, a container must be created with this image and the correct parameters, including the unless-stopped restart policy and the correct volume links to any devices. Instructions will be added here shortly.
+To run the project, a container must be created with this image and the correct parameters, including the unless-stopped restart policy and the correct volume links to any devices. For example:
+
+```
+docker create \
+    --name=verne
+    -v /dev/ttyAMA0:/dev/uart \
+    -v /dev/i2c-0:/dev/i2c-0 \
+    -v /dev/i2c-0:/dev/i2c-1 \
+    -v /home/pi/vernedata:/data \
+    --restart=unless-stopped \
+    gtviples/verne
+```
+
+Then, the container can be started and stopped using the `docker start verne` and `docker stop verne` commands.
 
 ## Built With
 

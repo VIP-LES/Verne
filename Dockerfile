@@ -12,7 +12,8 @@ RUN ./install_rtimulib.sh
 
 RUN pip install -r requirements.txt
 
-VOLUME /dev/geigerCounter
+VOLUME /dev/uart
+VOLUME /dev/i2c-0
 VOLUME /dev/i2c-1
 VOLUME /data
 

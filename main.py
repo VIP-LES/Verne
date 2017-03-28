@@ -2,7 +2,11 @@ from sensormodules import IMUModule, GeigerCounterModule
 import logging
 import signal
 import csv
+import time
 
+
+# TODO: Improve the time function!
+millis = lambda: int(round(time.time() * 1000))
 
 class GracefulKiller:
     kill_now = False
@@ -23,7 +27,7 @@ if __name__ == '__main__':
     logger = logging.getLogger("verne")
 
     modules['imu'] = IMUModule(logger.getChild("imu"))
-    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/geigerCounter", 9600)
+    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/uart", 9600)
 
     for m in modules.keys():
         f = open('%s.csv' % m, 'wb')
@@ -36,7 +40,7 @@ if __name__ == '__main__':
             data = modules[m].poll()
 
             if len(data) > 0:
-                currentTime = None # Todo: get the time here.
+                currentTime = millis()
                 writer = csvs[m][0]
 
                 for datum in data:
