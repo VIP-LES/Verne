@@ -29,7 +29,7 @@ if __name__ == '__main__':
     missionTime = datetime.now()
 
     for m in modules.keys():
-        f = open('%s.csv' % m, 'wb')
+        f = open('/data/%s.csv' % m, 'wb')
         writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow([missionTime])
