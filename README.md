@@ -27,8 +27,7 @@ To run the project, a container must be created with this image and the correct 
 docker create \
     --name=verne
     -v /dev/ttyAMA0:/dev/uart \
-    -v /dev/i2c-0:/dev/i2c-0 \
-    -v /dev/i2c-0:/dev/i2c-1 \
+    -v /dev/i2c-1:/dev/i2c-1 \
     -v /home/pi/vernedata:/data \
     --restart=unless-stopped \
     gtviples/verne
