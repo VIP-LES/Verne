@@ -32,8 +32,10 @@ class IMUModule(SensorModule):
         imu.setCompassEnable(True)
 
         self.imu = imu
-        self.pollInterval = imu.IMUGetPollInterval()
+        self.pollInterval = IMUModule.MILLISECOND_POLLING_INTERVAL
         self.logger = logger
+	self.data = None
+	self.lastPoll = None
 
     def poll(self, dt):
         if self.imu.IMURead():

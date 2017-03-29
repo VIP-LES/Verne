@@ -32,7 +32,8 @@ if __name__ == '__main__':
         f = open('/data/%s.csv' % m, 'wb')
         writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow([missionTime])
+	printableMissionTime = missionTime - datetime.fromtimestamp(0)
+        writer.writerow([int(printableMissionTime.total_seconds()*1000)])
 
         csvs[m] = (f, writer)
 
@@ -42,8 +43,8 @@ if __name__ == '__main__':
         for m in modules.keys():
             data = modules[m].poll(missionElapsedTime)
 
-            if len(data) > 0:
-                writer = csvs[m][0]
+            if data is not None and len(data) > 0:
+                writer = csvs[m][1]
 
                 for datum in data:
                     writer.writerow([missionElapsedTime] + list(datum))
@@ -52,6 +53,6 @@ if __name__ == '__main__':
             break
 
     for c in csvs.values():
-        c[1].close()
+        c[0].close()
 
     print("The eagle has landed.")

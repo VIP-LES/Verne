@@ -13,9 +13,9 @@ class GeigerCounterModule(SensorModule):
         
         data = self.sm.poll(dt)
 
-        retval = []
+        if data is not None:
+            retval = []
+            for c in data:
+                retval.append(c)
 
-        for c in data:
-            retval.append(c)
-
-        return retval
+            return retval
