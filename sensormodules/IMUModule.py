@@ -9,6 +9,7 @@ from . import SensorModule
 
 class IMUModule(SensorModule):
     SETTINGS_FILE = "RTIMULib"
+    MILLISECOND_POLLING_INTERVAL = 500
 
     def __init__(self, logger):
         sys.path.append('.')
@@ -31,15 +32,15 @@ class IMUModule(SensorModule):
         imu.setCompassEnable(True)
 
         self.imu = imu
-        self.poll_interval = imu.IMUGetPollInterval()
+        self.pollInterval = imu.IMUGetPollInterval()
         self.logger = logger
 
-    def poll(self):
+    def poll(self, dt):
         if self.imu.IMURead():
-            # x, y, z = imu.getFusionData()
-            # print("%f %f %f" % (x,y,z))
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
-            processedData = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
+            self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
 
-            return processedData
+        if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll).total_seconds() * 1000 >= self.pollInterval)):
+            self.lastPoll = dt
+            return self.data

@@ -7,7 +7,7 @@ class SerialModule(SensorModule):
 
         self.logger = logger
 
-    def poll(self):
+    def poll(self, dt):
         # It's important to realize that this method may produce incomplete data if called
         # in the middle of a line and it's up to the main loop to handle that.
         if self.sd.in_waiting > 0:

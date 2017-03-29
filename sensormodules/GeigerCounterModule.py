@@ -7,15 +7,15 @@ class GeigerCounterModule(SensorModule):
         self.sm = SerialModule(logger, device, baudRate)
         self.logger = logger
 
-    def poll(self):
+    def poll(self, dt):
         # The geiger counter's number of ticks is equal to the number of
         # characters on the serial output.
         
-        data = self.sm.poll()
+        data = self.sm.poll(dt)
 
         retval = []
 
-        for _ in xrange(data):
-            retval.append(True)
+        for c in data:
+            retval.append(c)
 
         return retval
