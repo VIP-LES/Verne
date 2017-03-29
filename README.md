@@ -7,7 +7,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The software is designed to be run on a Docker container where a number of software libraries will be installed. As a result, the docker-ce package is required. [Click here](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker) for details about installing Docker on Raspbian.
+The software is designed to be run on a Docker container where a number of software libraries will be installed. As a result, the docker-ce package is required. Run the following command to install Docker:
+
+`curl -sSL https://get.docker.com | sh`
 
 ### Building the Image
 
