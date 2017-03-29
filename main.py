@@ -24,7 +24,7 @@ if __name__ == '__main__':
     logger = logging.getLogger("verne")
 
     modules['imu'] = IMUModule(logger.getChild("imu"))
-    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/uart", 9600)
+    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/ttyAMA0", 9600)
 
     missionTime = datetime.now()
 
