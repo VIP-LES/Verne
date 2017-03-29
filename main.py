@@ -3,10 +3,7 @@ import logging
 import signal
 import csv
 import time
-
-
-# TODO: Improve the time function!
-millis = lambda: int(round(time.time() * 1000))
+from datetime import datetime
 
 class GracefulKiller:
     kill_now = False
@@ -29,22 +26,27 @@ if __name__ == '__main__':
     modules['imu'] = IMUModule(logger.getChild("imu"))
     modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/uart", 9600)
 
+    missionTime = datetime.now()
+
     for m in modules.keys():
         f = open('%s.csv' % m, 'wb')
         writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
+        writer.writerow([missionTime])
+
         csvs[m] = (f, writer)
 
     while True:
+        missionElapsedTime = int((datetime.now() - missionTime).total_seconds() * 1000)
+
         for m in modules.keys():
-            data = modules[m].poll()
+            data = modules[m].poll(missionElapsedTime)
 
             if len(data) > 0:
-                currentTime = millis()
                 writer = csvs[m][0]
 
                 for datum in data:
-                    writer.writerow([currentTime] + list(datum))
+                    writer.writerow([missionElapsedTime] + list(datum))
 
         if killer.kill_now:
             break
@@ -52,4 +54,4 @@ if __name__ == '__main__':
     for c in csvs.values():
         c[1].close()
 
-    print("Goodbye!")
+    print("The eagle has landed.")
