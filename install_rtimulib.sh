@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -ex         #Fail if any line fails, print everything
 
 apt-get update

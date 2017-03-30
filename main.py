@@ -27,7 +27,8 @@ def getCSVFilesFromModules(modules, missionTime, i):
         f = open('/data/%s-%d.csv' % (m, i), 'wb')
         writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow([missionTime])
+        printableMissionTime = missionTime - datetime.fromtimestamp(0)
+        writer.writerow([int(printableMissionTime.total_seconds() * 1000)])
 
         csvs[m] = (f, writer)
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     # Load the modules
     modules = {}
     modules['imu'] = IMUModule(logger.getChild("imu"))
-    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/uart", 9600)
+    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/ttyAMA0", 9600)
 
     missionTime = datetime.now()
     timeToKill = missionTime + timedelta(hours=killScriptAfterHours)
@@ -102,13 +103,15 @@ if __name__ == '__main__':
         for m in modules.keys():
             data = modules[m].poll(missionElapsedTime)
 
-            if len(data) > 0:
-                writer = csvs[m][0]
+            if data is not None and len(data) > 0:
+                writer = csvs[m][1]
 
                 for datum in data:
                     writer.writerow([missionElapsedTime] + list(datum))
 
         if killer.kill_now:
             break
+
+    closeCSVFiles(csvs)
 
     logger.info("The eagle has landed: stopping recording. Goodbye!")
