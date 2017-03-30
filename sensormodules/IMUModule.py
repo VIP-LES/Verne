@@ -39,8 +39,9 @@ class IMUModule(SensorModule):
         if self.imu.IMURead():
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
-            self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
+            #self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
+            self.data = tuple([math.degrees(v) for v in fusionPose])
 
         if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll).total_seconds() * 1000 >= self.pollInterval)):
             self.lastPoll = dt
-            return self.data
+            return [self.data]
