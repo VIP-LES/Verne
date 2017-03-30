@@ -13,11 +13,9 @@ The software is designed to be run on a Docker container where a number of softw
 
 ### Building the Image
 
-At the moment, the Docker image is present on the Docker Hub as gtviples/verne, with the :latest tag pointing to the latest stable version here on master branch the repository and the :develop branch pointing to the develop branch. However, if you choose the build the image yourself from source, you may do so using the following command in the repository directory:
+The Docker image is not available at the moment on the Docker hub, as a result, you need to compile it using the following command:
 
 `docker build -t gtviples/verne .`
-
-Note that this step is completely optional and that it should be done only if no internet connectivity is available.
 
 ### Installing and Running
 
