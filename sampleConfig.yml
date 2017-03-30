@@ -1,0 +1,5 @@
+# Create new CSV file after how many hours:
+cutFileInterval: 1
+
+# Stop the main script after how many hours:
+killScriptInterval: 6
