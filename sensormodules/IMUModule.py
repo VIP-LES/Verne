@@ -52,3 +52,6 @@ class IMUModule(SensorModule):
         if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll).total_seconds() * 1000 >= self.pollInterval)):
             self.lastPoll = dt
             return [self.data]
+        
+        if (self.data is None):
+            self.logger.warning("No IMU data")
