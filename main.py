@@ -11,6 +11,8 @@ from shutil import copyfile
 fileDir = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = "/data/config.yml"
 
+logging.basicConfig(level=logging.INFO)
+
 class GracefulKiller:
     kill_now = False
 
@@ -36,7 +38,7 @@ def getCSVFilesFromModules(modules, missionTime, i):
 
 def closeCSVFiles(csvs):
     for c in csvs.values():
-        c[1].close()
+        c[0].close()
 
 if __name__ == '__main__':
     killer = GracefulKiller()
@@ -84,21 +86,24 @@ if __name__ == '__main__':
 
     csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
     currentFile += 1
+    
+    logger.info("Starting mission loop.")
 
     while True:
-        missionElapsedTime = int((datetime.now() - missionTime).total_seconds() * 1000)
+        currentTime = datetime.now()
+        missionElapsedTime = int((currentTime - missionTime).total_seconds() * 1000)
 
-        if missionElapsedTime > timeToKill:
+        if currentTime > timeToKill:
             # It's time to end the recording! Goodbye!
             break
 
-        if missionElapsedTime > timeToRenewFile:
+        if currentTime > timeToRenewFile:
             closeCSVFiles(csvs)
 
             csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
             currentFile += 1
 
-            timeToRenewFile = missionElapsedTime + timedelta(hours=cutFileAfterHours)
+            timeToRenewFile = currentTime + timedelta(hours=cutFileAfterHours)
 
         for m in modules.keys():
             data = modules[m].poll(missionElapsedTime)

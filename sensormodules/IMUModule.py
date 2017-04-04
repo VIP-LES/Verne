@@ -17,21 +17,24 @@ class IMUModule(SensorModule):
         logger.info("Using settings file " + IMUModule.SETTINGS_FILE + ".ini")
         if not os.path.exists(IMUModule.SETTINGS_FILE + ".ini"):
             logger.warning("Settings file does not exist, will be created")
+        else:
+            logger.info("Using existing IMU settings file")
 
-        s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
-        imu = RTIMU.RTIMU(s)
+        self.s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
+        self.imu = RTIMU.RTIMU(self.s)
 
-        logger.info("IMU Name: " + imu.IMUName())
+        logger.info("IMU Name: " + self.imu.IMUName())
 
-        if not imu.IMUInit():
+        if not self.imu.IMUInit():
             raise ValueError("IMU Init Failed")
+        else:
+            logger.info("IMU initialized")
 
-        imu.setSlerpPower(0.02)
-        imu.setGyroEnable(True)
-        imu.setAccelEnable(True)
-        imu.setCompassEnable(True)
+        self.imu.setSlerpPower(0.02)
+        self.imu.setGyroEnable(True)
+        self.imu.setAccelEnable(True)
+        self.imu.setCompassEnable(True)
 
-        self.imu = imu
         self.pollInterval = IMUModule.MILLISECOND_POLLING_INTERVAL
         self.logger = logger
         self.data = None
@@ -41,9 +44,9 @@ class IMUModule(SensorModule):
         if self.imu.IMURead():
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
-            #self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
-            self.data = tuple([math.degrees(v) for v in fusionPose])
+            almostReady = ([data["accel"][0] * 9.81, data["accel"][1] * 9.81, data["accel"][2] * 9.81]+[math.degrees(v) for v in fusionPose])
+            self.data = tuple(["%.2f" % d for d in almostReady])
 
-        if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll).total_seconds() * 1000 >= self.pollInterval)):
+        if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll) >= self.pollInterval)):
             self.lastPoll = dt
             return [self.data]
