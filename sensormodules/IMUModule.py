@@ -42,7 +42,7 @@ class IMUModule(SensorModule):
         self.lastPoll = None
 
     def poll(self, dt):
-        self.logger.info(self.imu.IMURead())
+        #self.logger.info(self.imu.IMURead())
         if self.imu.IMURead():
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
