@@ -17,6 +17,8 @@ class IMUModule(SensorModule):
         logger.info("Using settings file " + IMUModule.SETTINGS_FILE + ".ini")
         if not os.path.exists(IMUModule.SETTINGS_FILE + ".ini"):
             logger.warning("Settings file does not exist, will be created")
+        else:
+            logger.info("Using existing IMU settings file")
 
         s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
         imu = RTIMU.RTIMU(s)
@@ -25,6 +27,8 @@ class IMUModule(SensorModule):
 
         if not imu.IMUInit():
             raise ValueError("IMU Init Failed")
+        else:
+            logger.info("IMU initialized")
 
         imu.setSlerpPower(0.02)
         imu.setGyroEnable(True)
