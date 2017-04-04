@@ -86,7 +86,8 @@ if __name__ == '__main__':
     currentFile += 1
 
     while True:
-        missionElapsedTime = int((datetime.now() - missionTime).total_seconds() * 1000)
+        missionElapsedTime = datetime.now() - missionTime
+        missionElapsedTimeMillis = int(missionElapsedTime.total_seconds() * 1000)
 
         if missionElapsedTime > timeToKill:
             # It's time to end the recording! Goodbye!
@@ -101,13 +102,13 @@ if __name__ == '__main__':
             timeToRenewFile = missionElapsedTime + timedelta(hours=cutFileAfterHours)
 
         for m in modules.keys():
-            data = modules[m].poll(missionElapsedTime)
+            data = modules[m].poll(missionElapsedTimeMillis)
 
             if data is not None and len(data) > 0:
                 writer = csvs[m][1]
 
                 for datum in data:
-                    writer.writerow([missionElapsedTime] + list(datum))
+                    writer.writerow([missionElapsedTimeMillis] + list(datum))
 
         if killer.kill_now:
             break
