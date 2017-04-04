@@ -20,22 +20,21 @@ class IMUModule(SensorModule):
         else:
             logger.info("Using existing IMU settings file")
 
-        s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
-        imu = RTIMU.RTIMU(s)
+        self.s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
+        self.imu = RTIMU.RTIMU(self.s)
 
-        logger.info("IMU Name: " + imu.IMUName())
+        logger.info("IMU Name: " + self.imu.IMUName())
 
-        if not imu.IMUInit():
+        if not self.imu.IMUInit():
             raise ValueError("IMU Init Failed")
         else:
             logger.info("IMU initialized")
 
-        imu.setSlerpPower(0.02)
-        imu.setGyroEnable(True)
-        imu.setAccelEnable(True)
-        imu.setCompassEnable(True)
+        self.imu.setSlerpPower(0.02)
+        self.imu.setGyroEnable(True)
+        self.imu.setAccelEnable(True)
+        self.imu.setCompassEnable(True)
 
-        self.imu = imu
         self.pollInterval = IMUModule.MILLISECOND_POLLING_INTERVAL
         self.logger = logger
         self.data = None
