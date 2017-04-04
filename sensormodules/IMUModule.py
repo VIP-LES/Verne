@@ -41,13 +41,12 @@ class IMUModule(SensorModule):
         self.lastPoll = None
 
     def poll(self, dt):
-        # self.logger.info(self.imu.IMUName())
         if self.imu.IMURead():
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
             # self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
-            self.data = tuple([self.data["accel"][0]*9.81, self.data["accel"][1]*9.81, self.data["accel"][2]*9.81]+[math.degrees(v) for v in fusionPose])
-            self.logger.info("data")
+            almostReady = ([data["accel"][0] * 9.81, data["accel"][1] * 9.81, data["accel"][2] * 9.81]+[math.degrees(v) for v in fusionPose])
+            self.data = tuple(["%.2f" % d for d in almostReady])
 
         if (self.data is not None) and (self.lastPoll is None or ((dt - self.lastPoll).total_seconds() * 1000 >= self.pollInterval)):
             self.lastPoll = dt
