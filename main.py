@@ -87,7 +87,7 @@ if __name__ == '__main__':
     csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
     currentFile += 1
     
-    logging.info("Starting mission loop.")
+    logger.info("Starting mission loop.")
 
     while True:
         currentTime = datetime.now()
