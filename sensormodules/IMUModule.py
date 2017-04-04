@@ -42,11 +42,11 @@ class IMUModule(SensorModule):
         self.lastPoll = None
 
     def poll(self, dt):
-        self.logger.info(self.imu.IMUName())
+        # self.logger.info(self.imu.IMUName())
         if self.imu.IMURead():
             data = self.imu.getIMUData()
             fusionPose = data["fusionPose"]
-            #self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
+            # self.data = [(math.degrees(fusionPose[0]), math.degrees(fusionPose[1]), math.degrees(fusionPose[2]))]
             self.data = tuple([self.data["accel"][0]*9.81, self.data["accel"][1]*9.81, self.data["accel"][2]*9.81]+[math.degrees(v) for v in fusionPose])
             self.logger.info("data")
 
