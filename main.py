@@ -36,7 +36,7 @@ def getCSVFilesFromModules(modules, missionTime, i):
 
 def closeCSVFiles(csvs):
     for c in csvs.values():
-        c[1].close()
+        c[0].close()
 
 if __name__ == '__main__':
     killer = GracefulKiller()
