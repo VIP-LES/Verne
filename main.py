@@ -11,6 +11,8 @@ from shutil import copyfile
 fileDir = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = "/data/config.yml"
 
+logging.basicConfig(level=logging.INFO)
+
 class GracefulKiller:
     kill_now = False
 
