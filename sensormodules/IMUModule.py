@@ -8,19 +8,16 @@ import math
 from . import SensorModule
 
 class IMUModule(SensorModule):
-    SETTINGS_FILE = "RTIMULib"
-    MILLISECOND_POLLING_INTERVAL = 500
-
-    def __init__(self, logger):
+    def __init__(self, logger, settings_file, millisecond_polling_interval):
         sys.path.append('.')
 
-        logger.info("Using settings file " + IMUModule.SETTINGS_FILE + ".ini")
-        if not os.path.exists(IMUModule.SETTINGS_FILE + ".ini"):
+        logger.info("Using settings file " + settings_file + ".ini")
+        if not os.path.exists(settings_file + ".ini"):
             logger.warning("Settings file does not exist, will be created")
         else:
             logger.info("Using existing IMU settings file")
 
-        self.s = RTIMU.Settings(IMUModule.SETTINGS_FILE)
+        self.s = RTIMU.Settings(settings_file)
         self.imu = RTIMU.RTIMU(self.s)
 
         logger.info("IMU Name: " + self.imu.IMUName())
@@ -35,7 +32,7 @@ class IMUModule(SensorModule):
         self.imu.setAccelEnable(True)
         self.imu.setCompassEnable(True)
 
-        self.pollInterval = IMUModule.MILLISECOND_POLLING_INTERVAL
+        self.pollInterval = millisecond_polling_interval
         self.logger = logger
         self.data = None
         self.lastPoll = None
