@@ -1,9 +1,10 @@
-from sensormodules import IMUModule, GeigerCounterModule
+import sensormodules
 import logging
 import signal
 import csv
 import yaml
 import os
+import sys
 import time
 from datetime import datetime, timedelta
 from shutil import copyfile
@@ -22,6 +23,21 @@ class GracefulKiller:
 
     def exit_gracefully(self, signum, frame):
         self.kill_now = True
+
+def getSmallestCSVFileNumberGreaterThan(currentFile, modules):
+    # If files exist, we want to find an int at which file-i does not exist, and increment it
+    # once more to make it clear that this is from a new recording.
+    currentFile += 1
+
+    while True:
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/%s-%d.csv" % (m, currentFile))]
+
+        if len(filesExist) > 0:
+            currentFile += 1
+        else:
+            break
+
+    return currentFile
 
 def getCSVFilesFromModules(modules, missionTime, i):
     csvs = {}
@@ -49,11 +65,24 @@ if __name__ == '__main__':
     # Start by reading the config
     cutFileAfterHours = None
     killScriptAfterHours = None
+    modulesToInitialize = []
+
     with open(CONFIG_PATH, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
         cutFileAfterHours = float(cfg["cutFileInterval"])
         killScriptAfterHours = float(cfg["killScriptInterval"])
+
+        modulesConfig = cfg["modules"]
+        for moduleConfig in modulesConfig:
+            moduleClass = getattr(sensormodules, moduleConfig["type"])
+            moduleName = moduleConfig["name"]
+
+            moduleInitParams = []
+            for param in moduleConfig["parameters"]:
+                moduleInitParams.append(param)
+
+            modulesToInitialize.append((moduleClass, moduleName, moduleInitParams))
 
     if cutFileAfterHours is None or killScriptAfterHours is None:
         raise ValueError("Could not read config file. Delete file if you want it reset.")
@@ -63,47 +92,39 @@ if __name__ == '__main__':
 
     # Load the modules
     modules = {}
-    modules['imu'] = IMUModule(logger.getChild("imu"))
-    modules['geiger'] = GeigerCounterModule(logger.getChild("geiger"), "/dev/ttyAMA0", 9600)
+
+    for moduleClass, moduleName, moduleInitParams in modulesToInitialize:
+        moduleLogger = logger.getChild(moduleName)
+        modules[moduleName] = moduleClass(*([moduleLogger] + moduleInitParams))
+        logger.info("Loaded module %s of type %s" % (moduleName, moduleClass.__name__))
 
     missionTime = datetime.now()
     timeToKill = missionTime + timedelta(hours=killScriptAfterHours)
     timeToRenewFile = missionTime + timedelta(hours=cutFileAfterHours)
 
-    currentFile = 0
-
-    # If files exist, we want to find an int at which file-i does not exist, and increment it
-    # once more to make it clear that this is from a new recording.
-    while True:
-        filesExist = [os.path.isfile("/data/%s-%d.csv" % (m, currentFile)) for m in modules.keys()].count(True)
-
-        if filesExist > 0:
-            currentFile += 1
-        else:
-            break
-
-    currentFile += 1
-
+    currentFile = getSmallestCSVFileNumberGreaterThan(0, modules)
     csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
-    currentFile += 1
-    
-    logger.info("Starting mission loop.")
 
+    logger.info("Liftoff: starting recording.")
+
+    forcedStop = False
     while True:
         currentTime = datetime.now()
         missionElapsedTime = int((currentTime - missionTime).total_seconds() * 1000)
 
         if currentTime > timeToKill:
             # It's time to end the recording! Goodbye!
+            forcedStop = False
             break
 
         if currentTime > timeToRenewFile:
             closeCSVFiles(csvs)
 
+            currentFile = getSmallestCSVFileNumberGreaterThan(currentFile, modules)
             csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
-            currentFile += 1
 
             timeToRenewFile = currentTime + timedelta(hours=cutFileAfterHours)
+            logger.info("File cutoff time reached. New file number: %d" % currentFile)
 
         for m in modules.keys():
             data = modules[m].poll(missionElapsedTime)
@@ -115,8 +136,13 @@ if __name__ == '__main__':
                     writer.writerow([missionElapsedTime] + list(datum))
 
         if killer.kill_now:
+            forcedStop = True
             break
 
     closeCSVFiles(csvs)
-
-    logger.info("The eagle has landed: stopping recording. Goodbye!")
+    if forcedStop:
+        logger.info("The script has been force-stopped. Maybe restart it?")
+        sys.exit(1)
+    else:
+        logger.info("The eagle has landed: stopping recording. Goodbye!")
+        sys.exit(0)

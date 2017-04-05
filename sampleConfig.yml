@@ -2,4 +2,18 @@
 cutFileInterval: 1
 
 # Stop the main script after how many hours:
-killScriptInterval: 6
+killScriptInterval: 4
+
+modules:
+  -
+    name: imu
+    type: IMUModule
+    parameters:
+      - "RTIMULib"
+      - 500
+  -
+    name: geiger
+    type: GeigerCounterModule
+    parameters:
+      - "/dev/ttyAMA0"
+      - 9600
