@@ -12,8 +12,6 @@ from shutil import copyfile
 fileDir = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = "/data/config.yml"
 
-logging.basicConfig(level=logging.INFO)
-
 class GracefulKiller:
     kill_now = False
 
@@ -59,6 +57,10 @@ def closeCSVFiles(csvs):
 if __name__ == '__main__':
     killer = GracefulKiller()
 
+    # Initialize the logger
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("verne")
+
     if not os.path.isfile(CONFIG_PATH):
         copyfile(os.path.join(fileDir, "sampleConfig.yml"), CONFIG_PATH)
 
@@ -68,27 +70,53 @@ if __name__ == '__main__':
     modulesToInitialize = []
 
     with open(CONFIG_PATH, 'r') as ymlfile:
+        def death(error):
+            logger.error(error)
+            ymlfile.close()
+            sys.exit(1)
+
         cfg = yaml.load(ymlfile)
 
         cutFileAfterHours = float(cfg["cutFileInterval"])
         killScriptAfterHours = float(cfg["killScriptInterval"])
 
         modulesConfig = cfg["modules"]
+        if modulesConfig is None:
+            death("Config file does not have a list of modules.")
+
+        if not hasattr(modulesConfig, '__iter__'):
+            death("Config key 'modules' needs to be a list of modules and not a single entry.")
+
         for moduleConfig in modulesConfig:
-            moduleClass = getattr(sensormodules, moduleConfig["type"])
             moduleName = moduleConfig["name"]
+            if moduleName is None:
+                death("Config file has module defined without a valid name.")
+
+            moduleClassName = moduleConfig["type"]
+            if moduleClassName is None:
+                death("Config file has module defined without a valid type.")
+
+            moduleClass = None
+            try:
+                moduleClass = getattr(sensormodules, moduleClassName)
+            except:
+                death("Config file references invalid module type %s" % moduleConfig["type"])
+
+            if moduleClass is None:
+                death("Config file references invalid module type %s" % moduleConfig["type"])
 
             moduleInitParams = []
-            for param in moduleConfig["parameters"]:
-                moduleInitParams.append(param)
+            if moduleConfig["parameters"] is not None:
+                for param in moduleConfig["parameters"]:
+                    moduleInitParams.append(param)
 
             modulesToInitialize.append((moduleClass, moduleName, moduleInitParams))
 
-    if cutFileAfterHours is None or killScriptAfterHours is None:
-        raise ValueError("Could not read config file. Delete file if you want it reset.")
+        if cutFileAfterHours is None or cutFileAfterHours <= 0 or killScriptAfterHours is None or killScriptAfterHours <= 0:
+            death("The config file did not contain valid values for required keys cutFileAfterHours and killScriptAfterHours. Delete the file if you want it reset.")
 
-    # Initialize the logger
-    logger = logging.getLogger("verne")
+        if len(modulesToInitialize) == 0:
+            death("File does not define any modules, making code useless. Delete the config file if you want to have it reset to the default module config.")
 
     # Load the modules
     modules = {}
