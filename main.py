@@ -31,7 +31,7 @@ def getCSVFilesFromModules(modules, missionTime, i):
     csvs = {}
     for m in modules.keys():
         f = open('/data/%s-%d.csv' % (m, i), 'wb')
-        writer = csv.writer(f, delimiter=', ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         printableMissionTime = missionTime - datetime.fromtimestamp(0)
         writer.writerow([int(printableMissionTime.total_seconds() * 1000)])
