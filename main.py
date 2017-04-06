@@ -12,6 +12,10 @@ from shutil import copyfile
 fileDir = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = "/data/config.yml"
 
+def sigterm_handler(_signo, _stack_frame):
+    print("sigterm_handler executed, %s, %s" % (_signo, _stack_frame))
+    sys.exit(0)
+
 def getSmallestCSVFileNumberGreaterThan(currentFile, modules):
     # If files exist, we want to find an int at which file-i does not exist, and increment it
     # once more to make it clear that this is from a new recording.
@@ -45,6 +49,8 @@ def closeCSVFiles(csvs):
         c[0].close()
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
     # Initialize the logger
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("verne")
