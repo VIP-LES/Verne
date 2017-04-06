@@ -20,7 +20,7 @@ def getRunNumber(modules):
     currentRun = 1
 
     while True:
-        filesExist = [m for m in modules.keys() if os.path.isfile("/data/%s-run%d-1.csv" % (m, currentRun))]
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-1.csv" % (currentRun, m))]
 
         if len(filesExist) > 0:
             currentRun += 1
@@ -35,7 +35,7 @@ def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
     currentFile += 1
 
     while True:
-        filesExist = [m for m in modules.keys() if os.path.isfile("/data/%s-run%d-%d.csv" % (m, currentRun, currentFile))]
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-1.csv" % (currentRun, m, currentFile))]
 
         if len(filesExist) > 0:
             currentFile += 1
@@ -47,7 +47,7 @@ def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
 def getCSVFilesFromModules(modules, missionTime, currentRun, currentFile):
     csvs = {}
     for m in modules.keys():
-        f = open('/data/%s-run%d-%d.csv' % (m, currentRun, currentFile), 'wb')
+        f = open("/data/run%d-%s-1.csv" % (currentRun, m, currentFile), 'wb')
         writer = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         printableMissionTime = missionTime - datetime.fromtimestamp(0)
