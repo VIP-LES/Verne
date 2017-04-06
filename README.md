@@ -23,6 +23,14 @@ docker build -t gtviples/verne .
 
 ### Installing and Running
 
+#### Easy, automated setup:
+
+* The docker image can be built using `sudo ./scripts/build-image.sh`
+* The container can be created using `sudo ./scripts/create-container.sh`
+* The startup settings can be configured using `sudo ./scripts/startup-config.sh`
+
+#### Manual setup:
+
 To run the project, a container must be created with this image and the correct parameters. For example:
 
 ```bash
@@ -74,7 +82,6 @@ And to set it to start on startup, do the following:
 systemctl enable verne.service
 ```
 
-The script can be built using `sudo ./scripts/build-image.sh`, the container can be created using `sudo ./scripts/create-container.sh` and the startup settings can be configured using `sudo ./scripts/startup-config.sh`
 
 ## Built With
 
