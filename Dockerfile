@@ -11,4 +11,4 @@ RUN pip install -r requirements.txt
 
 VOLUME /data
 
-CMD python main.py
+CMD ["python", "main.py"]
