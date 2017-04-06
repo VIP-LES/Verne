@@ -1,15 +1,8 @@
-FROM armhf/python:2.7
+FROM gtviples/verne-dependencies
 MAINTAINER Cem Gokmen <cgokmen@gatech.edu>
 
 COPY . /verne
 WORKDIR /verne
-
-RUN chmod +x install_rtimulib.sh
-RUN ./install_rtimulib.sh
-
-RUN pip install -r requirements.txt
-
-RUN apt-get clean
 
 VOLUME /data
 
