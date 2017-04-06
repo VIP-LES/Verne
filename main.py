@@ -125,7 +125,6 @@ if __name__ == '__main__':
     timeToRenewFile = missionTime + timedelta(hours=cutFileAfterHours)
 
     currentFile = getSmallestCSVFileNumberGreaterThan(0, modules)
-    currentFile += 1 # So that we get a gap from the last time this script was run
 
     logger.info("Creating initial CSV files. File number: %d" % currentFile)
     csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
