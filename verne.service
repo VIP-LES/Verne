@@ -1,0 +1,12 @@
+[Unit]
+Description=Verne
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=no
+ExecStart=/usr/bin/docker start -a verne
+ExecStop=/usr/bin/docker stop -t 5 verne
+
+[Install]
+WantedBy=default.target
