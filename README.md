@@ -9,29 +9,72 @@ These instructions will get you a copy of the project up and running on your loc
 
 The software is designed to be run on a Docker container where a number of software libraries will be installed. As a result, the docker-ce package is required. Run the following command to install Docker:
 
-`curl -sSL https://get.docker.com | sh`
+```bash
+curl -sSL https://get.docker.com | sh
+```
 
 ### Building the Image
 
 The Docker image is not available at the moment on the Docker hub, as a result, you need to compile it using the following command:
 
-`docker build -t gtviples/verne .`
+```bash
+docker build -t gtviples/verne .
+```
 
 ### Installing and Running
 
-To run the project, a container must be created with this image and the correct parameters, including the unless-stopped restart policy and the correct volume links to any devices. For example:
+To run the project, a container must be created with this image and the correct parameters. For example:
 
-```
+```bash
 docker create \
     --name=verne
     --device /dev/ttyAMA0 \
     --device /dev/i2c-1 \
     -v /home/pi/vernedata:/data \
-    --restart=on-failure \
     gtviples/verne
 ```
 
 Then, the container can be started and stopped using the `docker start verne` and `docker stop verne` commands.
+
+Note that we are not running this container with a restart policy because of the fact that we want the code to run just once.
+As a result, we need another way of making sure that the container is started on startup.
+
+We start by making sure that the responsibility of starting docker is on systemd and not on upstart:
+
+```bash
+echo manual | sudo tee /etc/init/docker.override
+sudo systemctl enable docker
+```
+
+We will use a systemd service setup to ensure that our container is run on boot. Create a file `/etc/systemd/system/verne.service` with the following contents:
+```
+[Unit]
+Description=Verne
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=no
+ExecStart=/usr/bin/docker start -a verne
+ExecStop=/usr/bin/docker stop -t 5 verne
+
+[Install]
+WantedBy=default.target
+```
+For convenience, this file is provided in the repository so that you can just copy and paste it.
+
+To run the service, do the following:
+```
+systemctl daemon-reload
+systemctl start verne.service
+```
+
+And to set it to start on startup, do the following:
+```bash
+systemctl enable verne.service
+```
+
+The script can be built using `sudo ./scripts/build-image.sh`, the container can be created using `sudo ./scripts/create-container.sh` and the startup settings can be configured using `sudo ./scripts/startup-config.sh`
 
 ## Built With
 
