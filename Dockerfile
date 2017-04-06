@@ -9,6 +9,8 @@ RUN ./install_rtimulib.sh
 
 RUN pip install -r requirements.txt
 
+RUN apt-get clean
+
 VOLUME /data
 
-CMD ["python", "main.py"]
+CMD ["python", "./main.py"]
