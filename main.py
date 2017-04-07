@@ -12,13 +12,30 @@ from shutil import copyfile
 fileDir = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = "/data/config.yml"
 
-def getSmallestCSVFileNumberGreaterThan(currentFile, modules):
+def sigterm_handler(_signo, _stack_frame):
+    print("sigterm_handler executed, %s, %s" % (_signo, _stack_frame))
+    sys.exit(0)
+
+def getRunNumber(modules):
+    currentRun = 1
+
+    while True:
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-1.csv" % (currentRun, m))]
+
+        if len(filesExist) > 0:
+            currentRun += 1
+        else:
+            break
+
+    return currentFile
+    
+def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
     # If files exist, we want to find an int at which file-i does not exist, and increment it
     # once more to make it clear that this is from a new recording.
     currentFile += 1
 
     while True:
-        filesExist = [m for m in modules.keys() if os.path.isfile("/data/%s-%d.csv" % (m, currentFile))]
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-1.csv" % (currentRun, m, currentFile))]
 
         if len(filesExist) > 0:
             currentFile += 1
@@ -27,11 +44,11 @@ def getSmallestCSVFileNumberGreaterThan(currentFile, modules):
 
     return currentFile
 
-def getCSVFilesFromModules(modules, missionTime, i):
+def getCSVFilesFromModules(modules, missionTime, currentRun, currentFile):
     csvs = {}
     for m in modules.keys():
-        f = open('/data/%s-%d.csv' % (m, i), 'wb')
-        writer = csv.writer(f, delimiter=', ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        f = open("/data/run%d-%s-1.csv" % (currentRun, m, currentFile), 'wb')
+        writer = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         printableMissionTime = missionTime - datetime.fromtimestamp(0)
         writer.writerow([int(printableMissionTime.total_seconds() * 1000)])
@@ -45,6 +62,8 @@ def closeCSVFiles(csvs):
         c[0].close()
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
     # Initialize the logger
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("verne")
@@ -118,11 +137,11 @@ if __name__ == '__main__':
     timeToKill = missionTime + timedelta(hours=killScriptAfterHours)
     timeToRenewFile = missionTime + timedelta(hours=cutFileAfterHours)
 
-    currentFile = getSmallestCSVFileNumberGreaterThan(0, modules)
-    currentFile += 1 # So that we get a gap from the last time this script was run
+    currentRun = getRunNumber(modules)
+    currentFile = getSmallestCSVFileNumberGreaterThan(currentRun, 0, modules)
 
-    logger.info("Creating initial CSV files. File number: %d" % currentFile)
-    csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
+    logger.info("Creating initial CSV files. Run number: %d. File number: %d" % (currentRun, currentFile))
+    csvs = getCSVFilesFromModules(modules, missionTime, currentRun, currentFile)
 
     logger.info("Liftoff: starting recording.")
 
@@ -138,8 +157,8 @@ if __name__ == '__main__':
             if currentTime > timeToRenewFile:
                 closeCSVFiles(csvs)
 
-                currentFile = getSmallestCSVFileNumberGreaterThan(currentFile, modules)
-                csvs = getCSVFilesFromModules(modules, missionTime, currentFile)
+                currentFile = getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules)
+                csvs = getCSVFilesFromModules(modules, missionTime, currentRun, currentFile)
 
                 timeToRenewFile = currentTime + timedelta(hours=cutFileAfterHours)
                 logger.info("File cutoff time reached. New file number: %d" % currentFile)
