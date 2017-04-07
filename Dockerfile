@@ -1,4 +1,4 @@
-FROM gtviples/verne-dependencies
+FROM gtviples/verne-deps
 MAINTAINER Cem Gokmen <cgokmen@gatech.edu>
 
 COPY . /verne
