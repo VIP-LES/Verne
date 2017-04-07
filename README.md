@@ -13,7 +13,7 @@ The software is designed to be run on a Docker container where a number of softw
 curl -sSL https://get.docker.com | sh
 ```
 
-After installing docker, you also need to make sure that you have a copy of the built gtviples/verne-dependencies image. [Click here](https://github.com/VIP-LES/Verne-Dependencies) for details on building that image.
+After installing docker, you also need to make sure that you have a copy of the built gtviples/verne-deps image. [Click here](https://github.com/VIP-LES/Verne-deps) for details on building that image.
 
 ### Building the Image
 
