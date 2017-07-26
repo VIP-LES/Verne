@@ -27,7 +27,7 @@ def getRunNumber(modules):
         else:
             break
 
-    return currentFile
+    return currentRun
     
 def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
     # If files exist, we want to find an int at which file-i does not exist, and increment it
@@ -35,7 +35,7 @@ def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
     currentFile += 1
 
     while True:
-        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-1.csv" % (currentRun, m, currentFile))]
+        filesExist = [m for m in modules.keys() if os.path.isfile("/data/run%d-%s-%d.csv" % (currentRun, m, currentFile))]
 
         if len(filesExist) > 0:
             currentFile += 1
@@ -47,7 +47,7 @@ def getSmallestCSVFileNumberGreaterThan(currentRun, currentFile, modules):
 def getCSVFilesFromModules(modules, missionTime, currentRun, currentFile):
     csvs = {}
     for m in modules.keys():
-        f = open("/data/run%d-%s-1.csv" % (currentRun, m, currentFile), 'wb')
+        f = open("/data/run%d-%s-%d.csv" % (currentRun, m, currentFile), 'wb')
         writer = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         printableMissionTime = missionTime - datetime.fromtimestamp(0)
