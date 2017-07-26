@@ -71,7 +71,7 @@ ExecStop=/usr/bin/docker stop -t 5 verne
 [Install]
 WantedBy=default.target
 ```
-For convenience, this file is provided in the repository so that you can just copy and paste it.
+For convenience, this file is provided in the repository in the scripts/ directory so that you can just copy and paste it.
 
 To run the service, do the following:
 ```
